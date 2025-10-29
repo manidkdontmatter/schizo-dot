@@ -1,0 +1,1 @@
+This entire project was made by Grok 4. I have no idea how it works on a detailed level, only an overall level. The overall level seems to check out. Could be coded a lot more modular and clean though.
