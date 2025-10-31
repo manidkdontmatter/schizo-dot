@@ -62,8 +62,8 @@ async function runScheduledTask() {
     console.error('Error in scheduled task:', error);
   }
 
-  // Schedule next run 5 minutes after completion
-  setTimeout(runScheduledTask, 5 * 60 * 1000);
+  // Schedule next run x minutes after completion
+  setTimeout(runScheduledTask, 30 * 60 * 1000);
 }
 
 const PORT = process.env.PORT || 3000;
