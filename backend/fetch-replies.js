@@ -48,7 +48,7 @@ async function fetchBoardReplies(board) {
   const repliesDir = path.join(__dirname, '..', 'data', `${board}-replies`);
   await fs.ensureDir(repliesDir);
 
-  console.log(`Processing ${threads.length} threads for /${board}/...`);
+  console.log(`Saving ${threads.length} threads for /${board}/...`);
   const boardStart = Date.now();
 
   for (const thread of threads.slice(0, 20)) { // Process first few threads for testing
@@ -70,12 +70,12 @@ async function fetchBoardReplies(board) {
 
       await delay(RATE_LIMIT_DELAY - (threadEnd - threadStart));
     } catch (error) {
-      console.error(`Error processing thread ${thread.no} in /${board}/:`, error.message);
+      console.error(`Error saving thread ${thread.no} in /${board}/:`, error.message);
     }
   }
 
   const boardEnd = Date.now();
-  console.log(`Processing for /${board}/ completed in ${boardEnd - boardStart} ms`);
+  console.log(`Saving for /${board}/ completed in ${boardEnd - boardStart} ms`);
 }
 
 async function fetchAllReplies() {
