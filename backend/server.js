@@ -2,7 +2,6 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import cron from 'node-cron';
 import { fetchAllCatalogs } from './fetch-catalogs.js';
 import { fetchAllReplies } from './fetch-replies.js';
 import { processReplies } from './process-replies.js';
@@ -11,7 +10,6 @@ import { analyzeSentiment } from './sentiment.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-let isUpdating = false;
 
 const app = express();
 
@@ -34,13 +32,8 @@ app.get('/sentiment', (req, res) => {
 });
 
 
-// Scheduled task: Run every 5 minutes
-cron.schedule('*/5 * * * *', async () => {
-  if (isUpdating) {
-    console.log('Previous update still running, skipping...');
-    return;
-  }
-  isUpdating = true;
+// Scheduled task function
+async function runScheduledTask() {
   console.log('Running scheduled data collection...');
   try {
     await fetchAllCatalogs();
@@ -67,13 +60,15 @@ cron.schedule('*/5 * * * *', async () => {
     console.log('Data collection and sentiment analysis complete.');
   } catch (error) {
     console.error('Error in scheduled task:', error);
-  } finally {
-    isUpdating = false;
   }
-});
+
+  // Schedule next run 5 minutes after completion
+  setTimeout(runScheduledTask, 5 * 60 * 1000);
+}
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log('Scheduled to update data every 5 minutes.');
+  console.log('Scheduled to run data collection loop every 5 minutes after completion.');
+  runScheduledTask(); // Start the loop
 });

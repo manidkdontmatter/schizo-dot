@@ -37,7 +37,7 @@ function countQuotes(posts) {
   return counts;
 }
 
-async function processBoard(board) {
+async function fetchBoardReplies(board) {
   const catalogPath = path.join(__dirname, '..', 'data', `${board}-catalog.json`);
   if (!fs.existsSync(catalogPath)) {
     console.log(`Catalog for ${board} not found. Run fetch-catalogs.js first.`);
@@ -49,10 +49,12 @@ async function processBoard(board) {
   await fs.ensureDir(repliesDir);
 
   console.log(`Processing ${threads.length} threads for /${board}/...`);
+  const boardStart = Date.now();
 
-  for (const thread of threads.slice(0, 10)) { // Process first 5 threads for testing
+  for (const thread of threads.slice(0, 20)) { // Process first few threads for testing
   // for (const thread of threads) {
     try {
+      const threadStart = Date.now();
       const threadData = await fetchThread(board, thread.no);
       const counts = countQuotes(threadData.posts);
 
@@ -63,13 +65,17 @@ async function processBoard(board) {
 
       const filePath = path.join(repliesDir, `${thread.no}.json`);
       fs.writeFileSync(filePath, JSON.stringify(importantPosts, null, 2));
-      console.log(`Saved ${importantPosts.length} posts for thread ${thread.no} in /${board}/`);
+      const threadEnd = Date.now();
+      console.log(`Saved ${importantPosts.length} posts for thread ${thread.no} in /${board}/ (${threadEnd - threadStart} ms)`);
 
-      await delay(RATE_LIMIT_DELAY);
+      await delay(RATE_LIMIT_DELAY - (threadEnd - threadStart));
     } catch (error) {
       console.error(`Error processing thread ${thread.no} in /${board}/:`, error.message);
     }
   }
+
+  const boardEnd = Date.now();
+  console.log(`Processing for /${board}/ completed in ${boardEnd - boardStart} ms`);
 }
 
 async function fetchAllReplies() {
@@ -82,10 +88,12 @@ async function fetchAllReplies() {
   });
 
   const boards = ['x', 'pol'];
+  const overallStart = Date.now();
   for (const board of boards) {
-    await processBoard(board);
+    await fetchBoardReplies(board);
   }
-  console.log('All replies fetched.');
+  const overallEnd = Date.now();
+  console.log(`All replies fetched in ${overallEnd - overallStart} ms`);
 }
 
 // Run if called directly

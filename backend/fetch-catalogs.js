@@ -20,6 +20,8 @@ async function fetchCatalog(board) {
 
     const data = await response.json();
 
+    const processingStart = Date.now();
+
     // Filter out pinned threads
     const threads = [];
     data.forEach(page => {
@@ -29,6 +31,9 @@ async function fetchCatalog(board) {
         }
       });
     });
+
+    // Sort by most replies first
+    threads.sort((a, b) => (b.replies || 0) - (a.replies || 0));
 
     // Save to file
     const filePath = path.join(__dirname, '..', 'data', `${board}-catalog.json`);
@@ -42,6 +47,9 @@ async function fetchCatalog(board) {
     const processedFilePath = path.join(__dirname, '..', 'data', `${board}-catalog-processed.json`);
     fs.writeFileSync(processedFilePath, JSON.stringify(processed, null, 2));
     console.log(`Saved ${processed.length} processed threads to ${board}-catalog-processed.json`);
+
+    const processingEnd = Date.now();
+    console.log(`Processing for /${board}/ completed in ${processingEnd - processingStart} ms`);
 
     return threads;
   } catch (error) {

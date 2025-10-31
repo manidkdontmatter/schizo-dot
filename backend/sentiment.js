@@ -1,19 +1,24 @@
 import { pipeline } from '@xenova/transformers';
 
 // Your custom labels for the spectrum
-const candidateLabels = ['the world is ending or getting worse or an apocalypse is coming or a bad event is coming or disaster is coming', 'the world is getting better or the world is at peace and in harmony and bad things are not about to happen and everything about the world is optimistic'];
+const candidateLabels = ['the world is ending or an apocalypse is coming or a huge bad event is coming or worldwide disaster is coming', 'the world is getting better or the world is at peace or harmony or bad things are not about to happen or everything about the world is optimistic'];
 
 // Exported function for sentiment analysis
 export async function analyzeSentiment(posts) {
   const startTime = Date.now();
 
   // Load the classifier (downloads ~500MB first time, then cached)
+  console.time('loadClassifier');
   const classifier = await pipeline('zero-shot-classification', 'Xenova/bart-large-mnli');
+  console.timeEnd('loadClassifier');
 
   // Process each post
+  console.time('processPosts');
   const results = [];
   for (const post of posts) {
+    console.time('await classifier')
     const output = await classifier(post, candidateLabels);
+    console.timeEnd('await classifier')
 
     // Map to spectrum score: hope = positive, doom = negative
     const scores = output.scores;
@@ -38,6 +43,7 @@ export async function analyzeSentiment(posts) {
       spectrumScore // Your -1 (doom) to +1 (hope) metric
     });
   }
+  console.timeEnd('processPosts');
 
   const endTime = Date.now();
   const duration = (endTime - startTime) / 1000;
