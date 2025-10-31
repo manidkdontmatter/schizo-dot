@@ -231,6 +231,10 @@
       color: yellow;
     }
 
+    a {
+      color: yellow;
+    }
+
     .sentiment {
       position: absolute;
       bottom: 20px;
@@ -311,7 +315,7 @@
     <div class="star"></div>
   </div>
   <div class="title">Schizo Dot</div>
-  <div class="description">Strongly interpret the dot.<br>The dot measures 4chan's collective consciousness.<br>See details <a href="#" onclick="showModal()">here</a></div>
+  <div class="description">Strongly interpret the dot.<br>The dot measures 4chan's collective consciousness.<br><a href="#" onclick="showModal()">Details</a> | <a href="https://github.com/manidkdontmatter/schizo-dot" target="_blank">Github</a></div>
   <div class="dot" id="dot">
     <div class="energy-particles">
       <div class="energy-particle"></div>
@@ -404,7 +408,7 @@
         if (avgSentiment < -0.5) label = 'Extreme Doom';
         else if (avgSentiment < -0.35) label = 'Doom';
         else if (avgSentiment < -0.2) label = 'Mild Doom';
-        else if (avgSentiment <= 0.2) label = 'Unknown';
+        else if (avgSentiment <= 0.2) label = 'Neutral';
         else if (avgSentiment <= 0.35) label = 'Mild Hope';
         else if (avgSentiment <= 0.5) label = 'Hope';
         else label = 'Extreme Hope';

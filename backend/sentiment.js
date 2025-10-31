@@ -6,19 +6,28 @@ const candidateLabels = ['the world is ending or an apocalypse is coming or a hu
 // Exported function for sentiment analysis
 export async function analyzeSentiment(posts) {
   const startTime = Date.now();
+  const batchSize = 10; // Adjust based on hardware; higher for more parallelism, lower for memory
 
   // Load the classifier (downloads ~500MB first time, then cached)
   console.time('loadClassifier');
   const classifier = await pipeline('zero-shot-classification', 'Xenova/bart-large-mnli');
   console.timeEnd('loadClassifier');
 
-  // Process each post
+  // Process posts in batches with parallelism
   console.time('processPosts');
+  const batches = [];
+  for (let i = 0; i < posts.length; i += batchSize) {
+    batches.push(posts.slice(i, i + batchSize));
+  }
+
+  const promises = batches.map(batch => classifier(batch, candidateLabels));
+  const batchOutputs = await Promise.all(promises);
+  const allOutputs = batchOutputs.flat(); // Flatten array of batch results
+
   const results = [];
-  for (const post of posts) {
-    console.time('await classifier')
-    const output = await classifier(post, candidateLabels);
-    console.timeEnd('await classifier')
+  for (let i = 0; i < posts.length; i++) {
+    const output = allOutputs[i];
+    const post = posts[i];
 
     // Map to spectrum score: hope = positive, doom = negative
     const scores = output.scores;
