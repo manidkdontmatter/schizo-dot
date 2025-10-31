@@ -6,15 +6,12 @@ const candidateLabels = ['the world is ending or an apocalypse is coming or a hu
 // Exported function for sentiment analysis
 export async function analyzeSentiment(posts) {
   const startTime = Date.now();
-  const batchSize = 10; // Adjust based on hardware; higher for more parallelism, lower for memory
+  const batchSize = 32; // Adjust based on hardware; higher for more parallelism, lower for memory
 
   // Load the classifier (downloads ~500MB first time, then cached)
-  console.time('loadClassifier');
   const classifier = await pipeline('zero-shot-classification', 'Xenova/bart-large-mnli');
-  console.timeEnd('loadClassifier');
 
   // Process posts in batches with parallelism
-  console.time('processPosts');
   const batches = [];
   for (let i = 0; i < posts.length; i += batchSize) {
     batches.push(posts.slice(i, i + batchSize));
@@ -52,7 +49,6 @@ export async function analyzeSentiment(posts) {
       spectrumScore // Your -1 (doom) to +1 (hope) metric
     });
   }
-  console.timeEnd('processPosts');
 
   const endTime = Date.now();
   const duration = (endTime - startTime) / 1000;
