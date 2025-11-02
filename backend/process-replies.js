@@ -45,7 +45,7 @@ async function processReplies() {
       const processedFilePath = path.join(processedDir, file);
       fs.writeFileSync(processedFilePath, JSON.stringify(processed, null, 2));
       const fileEnd = Date.now();
-      console.log(`Processed ${file} to ${processedDir} (${fileEnd - fileStart} ms)`);
+      // console.log(`Processed ${file} to ${processedDir} (${fileEnd - fileStart} ms)`);
     }
 
     const boardEnd = Date.now();

@@ -2,10 +2,10 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { Worker } from 'worker_threads';
 import { fetchAllCatalogs } from './fetch-catalogs.js';
 import { fetchAllReplies } from './fetch-replies.js';
 import { processReplies } from './process-replies.js';
-import { analyzeSentiment } from './sentiment.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,7 +25,7 @@ app.get('/', (req, res) => {
 app.get('/sentiment', (req, res) => {
   try {
     const data = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'sentiment-results.json'), 'utf8'));
-    res.json({ average: data.averageSpectrum });
+    res.json({ average: data.averageScore });
   } catch (error) {
     res.status(500).json({ error: 'Sentiment data not available' });
   }
@@ -55,7 +55,27 @@ async function runScheduledTask() {
         posts.push(...data.map(item => item.text));
       }
     }
-    const sentimentResults = await analyzeSentiment(posts);
+    const sentimentResults = await new Promise((resolve, reject) => {
+      const worker = new Worker('./sentiment-worker.js', { workerData: null });
+      
+      worker.postMessage(posts);
+      
+      worker.on('message', (message) => {
+        worker.terminate();
+        if (message.success) {
+          const { logMessage, ...dataToSave } = message.result;
+          console.log(logMessage);
+          resolve(dataToSave);
+        } else {
+          reject(new Error(message.error));
+        }
+      });
+      
+      worker.on('error', (err) => {
+        worker.terminate();
+        reject(err);
+      });
+    });
     fs.writeFileSync(path.join(dataDir, 'sentiment-results.json'), JSON.stringify(sentimentResults, null, 2));
     console.log('Data collection and sentiment analysis complete.');
   } catch (error) {

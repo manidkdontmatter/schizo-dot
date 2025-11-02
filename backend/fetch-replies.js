@@ -51,16 +51,17 @@ async function fetchBoardReplies(board) {
   console.log(`Saving ${threads.length} threads for /${board}/...`);
   const boardStart = Date.now();
 
-  for (const thread of threads.slice(0, 20)) { // Process first few threads for testing
+  for (const thread of threads.slice(0, 40)) { // limit to this many threads due to how slow it is. its sorted by the most replied to threads first anyway so it will still get the majority of all replies on the board
   // for (const thread of threads) {
     try {
       const threadStart = Date.now();
       const threadData = await fetchThread(board, thread.no);
       const counts = countQuotes(threadData.posts);
 
-      // Include OP and posts with 3+ quotes
+      // Include OP and posts with n+ quotes
       const importantPosts = threadData.posts.filter(post => {
-        return post.no === thread.no || counts[post.no] >= 5;
+        let postText = (post.sub ? post.sub : '') + ' ' + (post.com ? post.com : '')
+        return (post.no === thread.no || counts[post.no] >= 3) && postText.length > 40;
       });
 
       const filePath = path.join(repliesDir, `${thread.no}.json`);
