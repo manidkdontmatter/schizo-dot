@@ -4,9 +4,9 @@ let classifier = null;
 async function initClassifier() {
 	if (!classifier) {
 		try {
-			// classifier = await pipeline('zero-shot-classification', 'Xenova/bart-large-mnli'); // 110 seconds for 91 posts
+			classifier = await pipeline('zero-shot-classification', 'Xenova/bart-large-mnli'); // 110 seconds for 91 posts
 			// classifier = await pipeline('zero-shot-classification', 'Xenova/nli-deberta-v3-base'); // 59 seconds for 95 posts
-			classifier = await pipeline('zero-shot-classification', 'Xenova/distilbert-base-uncased-mnli'); // 14 seconds for 96 posts
+			// classifier = await pipeline('zero-shot-classification', 'Xenova/distilbert-base-uncased-mnli'); // 14 seconds for 96 posts
 			// classifier = await pipeline('zero-shot-classification', 'Xenova/DeBERTa-v3-base-mnli-fever-anli'); // 52 seconds for 90 posts
 			console.log('Classifier loaded');
 		} catch (err) {
@@ -16,6 +16,8 @@ async function initClassifier() {
 	}
 	return classifier;
 }
+
+let neutralLabel = 'not a prediction of the future for all of humanity, ignore all bad words and insults'
 
 export async function classifyPosts(posts) {
 	console.log(`Post classification in progress on ${posts.length} posts...`)
@@ -27,12 +29,9 @@ export async function classifyPosts(posts) {
 	await initClassifier();
 
 	const labels = [
-		// 'major worldwide disaster',
-		// 'not major worldwide disaster',
-		'bad news',
-		'good news',
-		'not news'
-		// 'neutral'
+		'a prediction of a horrible future for all of humanity, ignore all bad words and insults',
+		'a prediction of a utopian future for all of humanity, ignore all bad words and insults',
+		neutralLabel
 	];
 
 	const results = [];
@@ -46,8 +45,8 @@ export async function classifyPosts(posts) {
 			}
 
 			try {
-				// Prompt to guide focus (comment out to test without)
-				// const prompted = `Overall feelings about the future: ${post}`;
+				// Prompt to guide focus (comment out to test without). this is supposedly a trick people commonly use to guide the model
+				// const prompted = `post: ${post}`;
 				const prompted = post
 				const result = await classifier(prompted, labels);
 
@@ -78,13 +77,15 @@ export async function classifyPosts(posts) {
 		// console.log(`Processed ${processed}/${posts.length} posts (${Math.round((processed / posts.length) * 100)}%) – ETA ~${eta}min`);
 	}
 
-	const totalPosts = results.length;
-	const nonNeutralResults = results.filter(r => r.topLabel !== 'neutral');
-	const nonNeutralCount = nonNeutralResults.length;
-	const averageScore = nonNeutralCount > 0 ? nonNeutralResults.reduce((a, b) => a + b.topScore, 0) / nonNeutralCount : 0;
+	const totalPostCount = results.length;
+	const postsToMeasure = results.filter(r => r.topLabel !== neutralLabel && Math.abs(r.topScore) >= 0.5);
+	const averageScore = postsToMeasure.length > 0 ? postsToMeasure.reduce((a, b) => a + b.topScore, 0) / postsToMeasure.length : 0;
 
 	const totalTime = (Date.now() - startTime) / 1000;
 	const logMessage = `Post classification complete. Average score: ${averageScore.toFixed(3)}. Took ${totalTime.toFixed(2)} seconds`;
+	const measuredPostCount = postsToMeasure.length
+	const measuredPosts = postsToMeasure
+	const allPosts = results
 
-	return { totalPosts, averageScore, results, logMessage };
+	return { averageScore, totalPostCount, measuredPostCount, measuredPosts, allPosts, logMessage };
 }

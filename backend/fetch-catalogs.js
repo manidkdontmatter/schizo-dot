@@ -1,6 +1,6 @@
 import fs from 'fs-extra';
 import path from 'path';
-import { deHtml } from './utils.js';
+import { sanitizePost, BOARDS } from './utils.js';
 
 // Rate limiting delay (ms)
 const RATE_LIMIT_DELAY = 1000;
@@ -42,7 +42,7 @@ async function fetchCatalog(board) {
 
     // Create processed version
     const processed = threads.map(thread => ({
-      text: deHtml((thread.sub || '') + ' ' + (thread.com || ''))
+      text: sanitizePost((thread.sub || '') + ' ' + (thread.com || ''))
     }));
     const processedFilePath = path.join(__dirname, '..', 'data', `${board}-catalog-processed.json`);
     fs.writeFileSync(processedFilePath, JSON.stringify(processed, null, 2));
@@ -63,14 +63,14 @@ async function fetchAllCatalogs() {
   fs.ensureDirSync(dataDir);
 
   // Cleanup old catalogs
-  ['x', 'pol'].forEach(board => {
+  BOARDS.forEach(board => {
     const file = path.join(dataDir, `${board}-catalog.json`);
     if (fs.existsSync(file)) fs.removeSync(file);
     const processedFile = path.join(dataDir, `${board}-catalog-processed.json`);
     if (fs.existsSync(processedFile)) fs.removeSync(processedFile);
   });
 
-  const boards = ['x', 'pol'];
+  const boards = BOARDS;
   for (const board of boards) {
     await fetchCatalog(board);
     await delay(RATE_LIMIT_DELAY);

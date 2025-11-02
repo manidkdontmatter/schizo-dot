@@ -420,7 +420,6 @@
       }
     }
 
-    // Update every 5 minutes
     updateDot();
     function showModal() {
       document.getElementById('modal').style.display = 'block';
@@ -436,7 +435,7 @@
         closeModal();
       }
     }
-    setInterval(updateDot, 300000);
+    setInterval(updateDot, 15 * 60 * 1000);
   </script>
 </body>
 </html>

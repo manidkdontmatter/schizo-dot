@@ -1,14 +1,14 @@
 import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { deHtml } from './utils.js';
+import { sanitizePost, BOARDS } from './utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 async function processReplies() {
   const dataDir = path.join(__dirname, '..', 'data');
-  const boards = ['pol', 'x'];
+  const boards = BOARDS;
   const overallStart = Date.now();
 
   // Cleanup processed folders
@@ -39,7 +39,7 @@ async function processReplies() {
       const posts = JSON.parse(data);
 
       const processed = posts.map(post => ({
-        text: deHtml((post.sub || '') + ' ' + post.com)
+        text: sanitizePost((post.sub || '') + ' ' + post.com)
       }));
 
       const processedFilePath = path.join(processedDir, file);

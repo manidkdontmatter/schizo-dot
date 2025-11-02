@@ -6,6 +6,7 @@ import { Worker } from 'worker_threads';
 import { fetchAllCatalogs } from './fetch-catalogs.js';
 import { fetchAllReplies } from './fetch-replies.js';
 import { processReplies } from './process-replies.js';
+import { BOARDS } from './utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,7 +19,7 @@ app.use(express.static(path.join(__dirname, '..', 'frontend'))); // Serve fronte
 
 // Basic route
 app.get('/', (req, res) => {
-  res.send('Schizo Dot Backend - Measuring collective consciousness of /x/ and /pol/');
+  res.send('Schizo Dot Backend - 4chan collective consciousness');
 });
 
 // Sentiment route
@@ -42,7 +43,7 @@ async function runScheduledTask() {
 
     // Perform sentiment analysis
     const dataDir = path.join(__dirname, '..', 'data');
-    const boards = ['pol', 'x'];
+    const boards = BOARDS;
     let posts = [];
     for (const board of boards) {
       const repliesDir = path.join(dataDir, `${board}-replies-processed`);

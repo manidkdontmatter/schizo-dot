@@ -1,5 +1,6 @@
 import fs from 'fs-extra';
 import path from 'path';
+import { BOARDS } from './utils.js';
 
 // Rate limiting delay (ms) - more conservative for thread fetches
 const RATE_LIMIT_DELAY = 2000;
@@ -61,7 +62,7 @@ async function fetchBoardReplies(board) {
       // Include OP and posts with n+ quotes
       const importantPosts = threadData.posts.filter(post => {
         let postText = (post.sub ? post.sub : '') + ' ' + (post.com ? post.com : '')
-        return (post.no === thread.no || counts[post.no] >= 3) && postText.length > 40;
+        return (post.no === thread.no || counts[post.no] >= 4) && postText.length > 160;
       });
 
       const filePath = path.join(repliesDir, `${thread.no}.json`);
@@ -83,12 +84,12 @@ async function fetchAllReplies() {
   const dataDir = path.join(__dirname, '..', 'data');
 
   // Cleanup old replies
-  ['x', 'pol'].forEach(board => {
+  BOARDS.forEach(board => {
     const dir = path.join(dataDir, `${board}-replies`);
     if (fs.existsSync(dir)) fs.emptyDirSync(dir);
   });
 
-  const boards = ['x', 'pol'];
+  const boards = BOARDS;
   const overallStart = Date.now();
   for (const board of boards) {
     await fetchBoardReplies(board);
