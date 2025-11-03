@@ -1,6 +1,1 @@
-starting to think just passing pol-catalog-processed.json into grok every hour and ask it to give me a collective doom/hope score from it would be a better way to go. cant be that expensive, at most 24 api calls per day which is like 1 cent or less i think
-
-
-
-
-
+gonna need to have a patreon or crypto or something to cover these costs
