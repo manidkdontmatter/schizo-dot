@@ -101,7 +101,7 @@ async function runScheduledTask() {
   }
 
   // Schedule next run x minutes after completion
-  setTimeout(runScheduledTask, 30 * 60 * 1000);
+  setTimeout(runScheduledTask, 1 * 60 * 60 * 1000);
 }
 
 const PORT = process.env.PORT || 3000;
