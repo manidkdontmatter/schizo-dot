@@ -1,3 +1,1 @@
-Strictly speaking this is not sentiment analysis, it's more elaborate and advanced, it uses transformers.js with bart-large-mnli zero shot classification (a type of "AI" to keep it simple), meaning it understands human language, context, emotion, etc, it can classify posts into any vague set of categories I provide for it. The categories aren't just words they can be phrases too, of any length, it will decide how well the post's vibe correlates to each category, giving it a score.
-
-The AI is slow as f*ck though. Takes 5-10 minutes to process every post. Price to pay for complexity I guess.
+There are two modes for the backend. Either using a local model that is transformers.js bart-large-nli zero shot classification, or send the posts off to Grok and let Grok decide. Both work, but Grok is faster, cheaper, and seems to provide more nuanced accurate results.

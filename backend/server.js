@@ -7,6 +7,8 @@ import { fetchAllCatalogs } from './fetch-catalogs.js';
 import { fetchAllReplies } from './fetch-replies.js';
 import { processReplies } from './process-replies.js';
 import { BOARDS } from './utils.js';
+import config from './config.js';
+import { classifyPostsGrok } from './classify-posts-grok.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -38,45 +40,60 @@ async function runScheduledTask() {
   console.log('Running scheduled data collection...');
   try {
     await fetchAllCatalogs();
-    await fetchAllReplies();
-    await processReplies();
+    if (config.classificationMode == 'all') {
+      await fetchAllReplies();
+      await processReplies();
+    }
 
     // Perform sentiment analysis
     const dataDir = path.join(__dirname, '..', 'data');
     const boards = BOARDS;
     let posts = [];
-    for (const board of boards) {
-      const repliesDir = path.join(dataDir, `${board}-replies-processed`);
-      if (!fs.existsSync(repliesDir)) continue;
-      const files = fs.readdirSync(repliesDir);
-      for (const file of files) {
-        if (!file.endsWith('.json')) continue;
-        const filePath = path.join(repliesDir, file);
-        const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-        posts.push(...data.map(item => item.text));
+    if (config.classificationMode === 'catalog') {
+      const polData = JSON.parse(fs.readFileSync(path.join(dataDir, 'pol-catalog-processed.json'), 'utf8'));
+      const xData = JSON.parse(fs.readFileSync(path.join(dataDir, 'x-catalog-processed.json'), 'utf8'));
+      posts = [...polData, ...xData].map(item => item.text);
+    } else {
+      for (const board of boards) {
+        const repliesDir = path.join(dataDir, `${board}-replies-processed`);
+        if (!fs.existsSync(repliesDir)) continue;
+        const files = fs.readdirSync(repliesDir);
+        for (const file of files) {
+          if (!file.endsWith('.json')) continue;
+          const filePath = path.join(repliesDir, file);
+          const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+          posts.push(...data.map(item => item.text));
+        }
       }
     }
-    const sentimentResults = await new Promise((resolve, reject) => {
-      const worker = new Worker('./sentiment-worker.js', { workerData: null });
-      
-      worker.postMessage(posts);
-      
-      worker.on('message', (message) => {
-        worker.terminate();
-        if (message.success) {
-          const { logMessage, ...dataToSave } = message.result;
-          console.log(logMessage);
-          resolve(dataToSave);
-        } else {
-          reject(new Error(message.error));
-        }
+    let sentimentResults;
+    if (config.classification === 'grok') {
+      sentimentResults = await classifyPostsGrok(posts);
+    } else {
+      sentimentResults = await new Promise((resolve, reject) => {
+        const worker = new Worker('./sentiment-worker.js', { workerData: null });
+
+        worker.postMessage(posts);
+
+        worker.on('message', (message) => {
+          worker.terminate();
+          if (message.success) {
+            const { logMessage, ...dataToSave } = message.result;
+            console.log(logMessage);
+            resolve(dataToSave);
+          } else {
+            reject(new Error(message.error));
+          }
+        });
+
+        worker.on('error', (err) => {
+          worker.terminate();
+          reject(err);
+        });
       });
-      
-      worker.on('error', (err) => {
-        worker.terminate();
-        reject(err);
-      });
-    });
+    }
+    const { logMessage, ...dataToSave } = sentimentResults;
+    if (logMessage) console.log(logMessage);
     fs.writeFileSync(path.join(dataDir, 'sentiment-results.json'), JSON.stringify(sentimentResults, null, 2));
     console.log('Data collection and sentiment analysis complete.');
   } catch (error) {
