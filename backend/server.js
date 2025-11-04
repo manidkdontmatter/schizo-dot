@@ -13,33 +13,44 @@ import { classifyPostsGrok } from './classify-posts-grok.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
 const app = express();
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'frontend'))); // Serve frontend static files
 
-// Basic route
+// Basic route (optional—consider removing if static index.html handles root)
 app.get('/', (req, res) => {
   res.send('Schizo Dot Backend - 4chan collective consciousness');
 });
 
-// Sentiment route
+// Sentiment route (with file check for robustness)
 app.get('/sentiment', (req, res) => {
   try {
-    const data = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'sentiment-results.json'), 'utf8'));
+    const filePath = path.join(__dirname, '..', 'data', 'sentiment-results.json');
+    if (!fs.existsSync(filePath)) {
+      console.log('Sentiment file not found—task may not have run yet');
+      return res.status(404).json({ error: 'Sentiment data not ready yet—refresh in a bit' });
+    }
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
     res.json({ average: data.averageScore });
   } catch (error) {
+    console.error('Sentiment route error:', error);
     res.status(500).json({ error: 'Sentiment data not available' });
   }
 });
 
-// Reasoning route
+// Reasoning route (with file check for robustness; sends plain text as before)
 app.get('/reasoning', (req, res) => {
   try {
-    const data = fs.readFileSync(path.join(__dirname, '..', 'data', 'reasoning.txt'), 'utf8');
+    const filePath = path.join(__dirname, '..', 'data', 'reasoning.txt');
+    if (!fs.existsSync(filePath)) {
+      console.log('Reasoning file not found—check data dir or scheduled task');
+      return res.status(404).json({ error: 'Reasoning data not ready yet—refresh in a bit' });
+    }
+    const data = fs.readFileSync(filePath, 'utf8');
     res.type('text/plain').send(data);
   } catch (error) {
+    console.error('Reasoning route error:', error);
     res.status(500).json({ error: 'Reasoning data not available' });
   }
 });
@@ -55,8 +66,13 @@ async function runScheduledTask() {
       await processReplies();
     }
 
-    // Perform sentiment analysis
+    // Ensure data dir exists
     const dataDir = path.join(__dirname, '..', 'data');
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+
+    // Perform sentiment analysis
     const boards = BOARDS;
     let posts = [];
     if (config.classificationMode === 'catalog') {
@@ -110,8 +126,8 @@ async function runScheduledTask() {
     console.error('Error in scheduled task:', error);
   }
 
-  // Schedule next run x minutes after completion
-  setTimeout(runScheduledTask, 1 * 60 * 60 * 1000);
+  // Schedule next run hourly
+  setTimeout(runScheduledTask, 60 * 60 * 1000);
 }
 
 const PORT = process.env.PORT || 3000;
