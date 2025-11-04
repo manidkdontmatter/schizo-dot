@@ -34,6 +34,16 @@ app.get('/sentiment', (req, res) => {
   }
 });
 
+// Reasoning route
+app.get('/reasoning', (req, res) => {
+  try {
+    const data = fs.readFileSync(path.join(__dirname, '..', 'data', 'reasoning.txt'), 'utf8');
+    res.type('text/plain').send(data);
+  } catch (error) {
+    res.status(500).json({ error: 'Reasoning data not available' });
+  }
+});
+
 
 // Scheduled task function
 async function runScheduledTask() {

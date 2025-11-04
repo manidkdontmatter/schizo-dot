@@ -1,5 +1,11 @@
 import OpenAI from 'openai';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import config from './config.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const client = new OpenAI({
   apiKey: config.grokApiKey,
@@ -23,6 +29,7 @@ export async function classifyPostsGrok(posts) {
   }
 
   const scores = [];
+  const chunkData = [];
   for (let i = 0; i < chunks.length; i++) {
     const chunk = chunks[i];
     const chunkText = chunk.map(post => `post: ${post}`).join('\n\n');
@@ -54,8 +61,10 @@ export async function classifyPostsGrok(posts) {
         if (isNaN(score) || score < -1 || score > 1) {
           console.warn(`Invalid score from Grok for chunk ${i + 1}: ${response}`);
           scores.push(0); // Neutral fallback
+          chunkData.push({chunk: i+1, score: 0, explanation}); // Still include for reasoning
         } else {
           scores.push(score);
+          chunkData.push({chunk: i+1, score, explanation});
         }
       } else {
         console.warn(`Invalid response format from Grok for chunk ${i + 1}: ${response}`);
@@ -73,6 +82,11 @@ export async function classifyPostsGrok(posts) {
   }
 
   const averageScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+
+  // Save reasoning to file
+  const intro = `Score: ${averageScore.toFixed(2)}\n\nHundreds of 4chan posts are broken into ${numChunks} chunks. Each chunk contains multiple posts. The chunk is then analyzed by the AI and given a score. Then all scores are averaged together into the overall score. Below is the AI's reasoning for each chunk of 4chan posts:\n\n`;
+  const reasoningText = intro + chunkData.map(item => `Chunk ${item.chunk}. Score: ${item.score.toFixed(2)}, ${item.explanation}`).join('\n\n');
+  fs.writeFileSync(path.join(__dirname, '..', 'data', 'reasoning.txt'), reasoningText);
 
   const totalTime = (Date.now() - startTime) / 1000;
   const logMessage = `Grok post classification complete. Average score: ${averageScore.toFixed(3)}. Took ${totalTime.toFixed(2)} seconds`;
