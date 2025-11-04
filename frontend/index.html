@@ -246,6 +246,7 @@
       transform: translateX(-50%);
       color: #fff;
       font-size: 20px;
+      text-align: center;
       text-shadow: 0 0 15px rgba(255, 255, 255, 0.6), 0 0 30px rgba(138, 43, 226, 0.4);
       z-index: 10;
     }
@@ -264,15 +265,17 @@
 
     .modal-content {
       background: radial-gradient(circle at center, rgba(0, 0, 0, 0.9), rgba(20, 20, 50, 0.9));
-      margin: 15% auto;
+      margin: 2% auto;
       padding: 20px;
       border: 2px solid rgba(138, 43, 226, 0.5);
       border-radius: 10px;
       width: 80%;
       max-width: 600px;
+      height: 96%;
       color: #fff;
       text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
       box-shadow: 0 0 50px rgba(138, 43, 226, 0.8), inset 0 0 50px rgba(0, 0, 0, 0.5);
+      overflow-y: auto;
     }
 
     .close {
@@ -335,6 +338,13 @@
     <div class="modal-content">
       <span class="close" onclick="closeModal()">&times;</span>
       <p>The dot measures the collective consciousness of 4chan's /x/ and /pol/ boards. A neural network reads every thread and every reply, selecting only the finest schizo posts and posts that are future predictive and filtering out low quality posts and assigns a "doom" or "hope" score to each post. This is then combined into a collective score. This score is then made even more future predictive by the dot not showing you the score of the current time, but an extrapolated score of the past few scores, aka the color the dot should be in the future.</p>
+    </div>
+  </div>
+
+  <div id="reasoning-modal" class="modal">
+    <div class="modal-content" style="width: 90%; max-width: 1000px; height: 98%; margin-top: 10px; overflow-y: auto;">
+      <span class="close" onclick="closeReasoningModal()">&times;</span>
+      <div id="reasoning-content"></div>
     </div>
   </div>
 
@@ -416,7 +426,7 @@
         else if (avgSentiment <= 0.35) label = 'Mild Hope';
         else if (avgSentiment <= 0.5) label = 'Hope';
         else label = 'Extreme Hope';
-        sentimentEl.textContent = `Sentiment: ${avgSentiment.toFixed(2)} (${label})`;
+        sentimentEl.innerHTML = `Sentiment: ${avgSentiment.toFixed(2)} (${label})<br><a href="#" onclick="showReasoningModal()">View Reasoning</a>`;
 
       } catch (error) {
         console.error('Error loading sentiment:', error);
@@ -433,10 +443,33 @@
       document.getElementById('modal').style.display = 'none';
     }
 
+    function showReasoningModal() {
+      document.getElementById('reasoning-modal').style.display = 'block';
+      fetchReasoning();
+    }
+
+    function closeReasoningModal() {
+      document.getElementById('reasoning-modal').style.display = 'none';
+    }
+
+    async function fetchReasoning() {
+      try {
+        const response = await fetch('/reasoning');
+        const text = await response.text();
+        const content = document.getElementById('reasoning-content');
+        content.innerHTML = text.split('\n\n').map(p => `<p style="text-align: center;">${p}</p>`).join('');
+      } catch (error) {
+        document.getElementById('reasoning-content').innerHTML = '<p style="text-align: center;">Error loading reasoning data</p>';
+      }
+    }
+
     // Close modal when clicking outside
     window.onclick = function(event) {
       if (event.target == document.getElementById('modal')) {
         closeModal();
+      }
+      if (event.target == document.getElementById('reasoning-modal')) {
+        closeReasoningModal();
       }
     }
     setInterval(updateDot, 15 * 60 * 1000);
