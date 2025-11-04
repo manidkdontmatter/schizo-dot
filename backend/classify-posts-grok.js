@@ -84,7 +84,7 @@ export async function classifyPostsGrok(posts) {
   const averageScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
 
   // Save reasoning to file
-  const intro = `Score: ${averageScore.toFixed(2)}\n\nHundreds of 4chan posts are broken into ${numChunks} chunks. Each chunk contains multiple posts. The chunk is then analyzed by the AI and given a score. Then all scores are averaged together into the overall score. Below is the AI's reasoning for each chunk of 4chan posts:\n\n`;
+  const intro = `Score: ${averageScore.toFixed(2)}\n\nHundreds of 4chan posts are broken into ${numChunks} chunks. Each chunk contains multiple posts. The chunk is then analyzed by the AI and given a score by observing the most future predictive and schizo posts. Then all scores are averaged together into the overall score. Below is the AI's reasoning for each chunk of 4chan posts:\n\n`;
   const reasoningText = intro + chunkData.map(item => `Chunk ${item.chunk}. Score: ${item.score.toFixed(2)}, ${item.explanation}`).join('\n\n');
   fs.writeFileSync(path.join(__dirname, '..', 'data', 'reasoning.txt'), reasoningText);
 
