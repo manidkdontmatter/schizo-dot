@@ -107,6 +107,5 @@ async function runScheduledTask() {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log('Scheduled to run data collection loop every 5 minutes after completion.');
   runScheduledTask(); // Start the loop
 });
