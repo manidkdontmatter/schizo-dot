@@ -77,7 +77,7 @@ async function updateDot() {
 		else if (avgSentiment <= 0.35) label = 'Mild Hope';
 		else if (avgSentiment <= 0.5) label = 'Hope';
 		else label = 'Extreme Hope';
-		sentimentEl.innerHTML = `Sentiment: ${avgSentiment.toFixed(2)} (${label})<br><a href="#" onclick="showReasoningModal()">View Reasoning</a> | <a href="#" onclick="showChartModal()">View Score History Chart</a>`;
+		sentimentEl.innerHTML = `Sentiment: ${avgSentiment.toFixed(2)} (${label})<br><a href="#" onclick="showReasoningModal()">View Reasoning</a> | <a href="#" onclick="showChartModal()">View Chart</a>`;
 
 	} catch (error) {
 		console.error('Error loading sentiment:', error);
