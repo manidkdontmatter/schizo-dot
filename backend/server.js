@@ -9,6 +9,7 @@ import { processReplies } from './process-replies.js';
 import { BOARDS } from './utils.js';
 import config from './config.js';
 import { classifyPostsGrok } from './classify-posts-grok.js';
+import { getChartData } from './chart.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,7 +17,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '..', 'frontend'))); // Serve frontend static files
+app.use(express.static(path.join(__dirname, '..', 'frontend', 'dist'))); // Serve frontend static files
 
 // Basic route (optional—consider removing if static index.html handles root)
 app.get('/', (req, res) => {
@@ -53,6 +54,17 @@ app.get('/reasoning', (req, res) => {
     console.error('Reasoning route error:', error);
     res.status(500).json({ error: 'Reasoning data not available' });
   }
+});
+
+// Chart data route
+app.get('/api/chart-data', async (req, res) => {
+ try {
+   const data = await getChartData();
+   res.json(data);
+ } catch (error) {
+   console.error('Chart data route error:', error);
+   res.status(500).json({ error: 'Chart data not available' });
+ }
 });
 
 

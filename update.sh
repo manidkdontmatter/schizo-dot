@@ -13,7 +13,8 @@ if echo "$PULL_OUTPUT" | grep -q "Already up to date"; then
 else
   echo "Changes pulled: $PULL_OUTPUT at $(date)" >> update.log
   npm ci --only=production  # Faster install for prod (skip dev deps); use 'npm install' if preferred
-  pm2 restart myapp
+  (cd frontend && npm run build)
+  pm2 restart schizo-dot
   echo "PM2 restarted after update at $(date)" >> update.log
 fi
 

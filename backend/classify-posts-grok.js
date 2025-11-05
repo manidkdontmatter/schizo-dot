@@ -21,7 +21,7 @@ export async function classifyPostsGrok(posts) {
     return { totalPosts: 0, results: [], averageScore: 0 };
   }
 
-  const numChunks = 20;
+  const numChunks = 1;
   const chunkSize = Math.ceil(posts.length / numChunks);
   const chunks = [];
   for (let i = 0; i < posts.length; i += chunkSize) {
@@ -82,7 +82,19 @@ export async function classifyPostsGrok(posts) {
   }
 
   const averageScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
-
+  
+  // Append to score history
+  const historyPath = path.join(__dirname, '..', 'data', 'score-history.json');
+  let history = [];
+  try {
+    const data = fs.readFileSync(historyPath, 'utf8');
+    history = JSON.parse(data);
+  } catch (err) {
+    // File doesn't exist, history remains []
+  }
+  history.push({ score: averageScore, timestamp: new Date().toISOString() });
+  fs.writeFileSync(historyPath, JSON.stringify(history, null, 2));
+  
   // Save reasoning to file
   const intro = `Score: ${averageScore.toFixed(2)}\n\nHundreds of 4chan posts are broken into ${numChunks} chunks. Each chunk contains multiple posts. The chunk is then analyzed by the AI and given a score by observing the most future predictive and schizo posts. Then all scores are averaged together into the overall score. Below is the AI's reasoning for each chunk of 4chan posts:\n\n`;
   const reasoningText = intro + chunkData.map(item => `Chunk ${item.chunk}. Score: ${item.score.toFixed(2)}, ${item.explanation}`).join('\n\n');
