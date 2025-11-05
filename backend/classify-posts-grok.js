@@ -21,7 +21,7 @@ export async function classifyPostsGrok(posts) {
     return { totalPosts: 0, results: [], averageScore: 0 };
   }
 
-  const numChunks = 1;
+  const numChunks = 10;
   const chunkSize = Math.ceil(posts.length / numChunks);
   const chunks = [];
   for (let i = 0; i < posts.length; i += chunkSize) {
