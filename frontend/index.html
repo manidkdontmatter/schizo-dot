@@ -48,14 +48,14 @@
   <div class="sentiment" id="sentiment">Loading...</div>
 
   <div id="modal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
       <span class="close" onclick="closeModal()">&times;</span>
       <p>The dot measures the collective consciousness of 4chan's /x/ and /pol/ boards. A neural network reads every thread and every reply, selecting only the finest schizo posts and posts that are future predictive and filtering out low quality posts and assigns a "doom" or "hope" score to each post. This is then combined into a collective score. This score is then made even more future predictive by the dot not showing you the score of the current time, but an extrapolated score of the past few scores, aka the color the dot should be in the future.</p>
     </div>
   </div>
 
   <div id="reasoning-modal" class="modal">
-    <div class="modal-content" style="width: 90%; max-width: 1000px; height: 98%; margin-top: 10px; overflow-y: auto;">
+    <div class="modal-content" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 1000px; height: auto; overflow-y: auto;">
       <span class="close" onclick="closeReasoningModal()">&times;</span>
       <div id="reasoning-content"></div>
     </div>
