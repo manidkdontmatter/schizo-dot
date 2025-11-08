@@ -9,7 +9,7 @@ PULL_OUTPUT=$(git pull origin main 2>&1)
 
 # Check if pull fetched changes (not "Already up to date")
 if echo "$PULL_OUTPUT" | grep -q "Already up to date"; then
-  echo "No changes pulled at $(date). Skipping restart." >> update.log
+  echo "No changes at $(date)" >> update.log
 else
   echo "Changes pulled: $PULL_OUTPUT at $(date)" >> update.log
   (cd backend && npm ci --only=production)  # Faster install for prod (skip dev deps); use 'npm install' if preferred
