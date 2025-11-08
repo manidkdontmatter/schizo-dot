@@ -87,6 +87,24 @@ async function updateDot() {
 }
 
 updateDot();
+
+function generateStars() {
+  const starsContainer = document.querySelector('.stars');
+  for (let i = 0; i < 30; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.position = 'absolute';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.width = (1 + Math.random() * 3) + 'px';
+    star.style.height = star.style.width;
+    star.style.animationDelay = Math.random() * 20 + 's';
+    starsContainer.appendChild(star);
+  }
+}
+
+generateStars();
+
 function showModal() {
 	document.getElementById('modal').style.display = 'block';
 }
