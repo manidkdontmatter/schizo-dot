@@ -63,8 +63,9 @@ async function updateDot() {
 		// Update box-shadow to match color
 		dot.style.boxShadow = `inset 30px 30px 80px rgba(255, 255, 255, 0.5), inset -30px -30px 80px rgba(0, 0, 0, 0.6), 0 0 150px rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, 0.6), 0 0 250px rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, 0.4)`;
 
-		// Size based on absolute sentiment
-		const size = 150 + Math.abs(avgSentiment) * 50;
+		// Size based on absolute sentiment, scaled for mobile
+		const isMobile = window.innerWidth < 768;
+		const size = isMobile ? 100 + Math.abs(avgSentiment) * 30 : 150 + Math.abs(avgSentiment) * 50;
 		dot.style.width = `${size}px`;
 		dot.style.height = `${size}px`;
 

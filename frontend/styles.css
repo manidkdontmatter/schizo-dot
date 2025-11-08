@@ -1,15 +1,19 @@
-    body {
-      background: #000000; /* Deep space black */
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      overflow: hidden;
-      font-family: 'Arial', sans-serif;
-      position: relative;
-    }
+    html {
+       overflow: hidden;
+     }
+
+     body {
+       background: #000000; /* Deep space black */
+       margin: 0;
+       padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       height: 100dvh;
+       overflow: hidden;
+       font-family: 'Arial', sans-serif;
+       position: relative;
+     }
 
     /* Nebula clouds layer */
     .nebula {
@@ -279,7 +283,53 @@
     }
 
     .modal-content p {
-      font-size: 18px;
-      line-height: 1.6;
+       font-size: 18px;
+       line-height: 1.6;
+     }
+    #chart { padding: 20px; height: 400px; }
+
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+      .dot {
+        max-width: 150px;
+        max-height: 150px;
+        animation: pulse-mobile 4s infinite ease-in-out;
+      }
+      .dot::before {
+        animation: aura-mobile 5s infinite ease-in-out;
+      }
     }
-#chart { padding: 20px; height: 400px; }
+
+    @keyframes pulse-mobile {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    @keyframes aura-mobile {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+
+    @media (max-width: 480px) {
+      .title { font-size: 24px; }
+      .description { font-size: 16px; }
+      .sentiment { font-size: 18px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .dot {
+        animation: none;
+      }
+      .dot::before {
+        animation: none;
+      }
+      .dot::after {
+        animation: none;
+      }
+      .nebula {
+        animation: none;
+      }
+      .star {
+        animation: none;
+      }
+    }
