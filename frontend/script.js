@@ -71,13 +71,13 @@ async function updateDot() {
 
 		// Update sentiment text
 		let label;
-		if (avgSentiment < -0.5) label = 'Extreme Doom';
+		if (avgSentiment < -0.5) label = 'It\'s so over';
 		else if (avgSentiment < -0.35) label = 'Doom';
 		else if (avgSentiment < -0.2) label = 'Mild Doom';
-		else if (avgSentiment <= 0.2) label = 'Neutral';
+		else if (avgSentiment <= 0.2) label = 'Nothing Ever Happens';
 		else if (avgSentiment <= 0.35) label = 'Mild Hope';
-		else if (avgSentiment <= 0.5) label = 'Hope';
-		else label = 'Extreme Hope';
+		else if (avgSentiment <= 0.5) label = 'Hope'
+		else label = 'We\'re so back';
 		sentimentEl.innerHTML = `Sentiment: ${avgSentiment.toFixed(2)} (${label})<br><a href="#" onclick="showReasoningModal()">View Reasoning</a> | <a href="#" onclick="showChartModal()">View Chart</a>`;
 
 	} catch (error) {
