@@ -44,4 +44,32 @@ function sanitizePost(postString) {
 	return text;
 }
 
-export { sanitizePost, BOARDS };
+function getHumanReadableDate() {
+  const now = new Date();
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+  const month = months[now.getMonth()];
+  const day = now.getDate();
+  const year = now.getFullYear();
+
+  // Function to get the ordinal suffix
+  function getOrdinalSuffix(d) {
+    if (d > 3 && d < 21) return 'th';
+    switch (d % 10) {
+      case 1: return 'st';
+      case 2: return 'nd';
+      case 3: return 'rd';
+      default: return 'th';
+    }
+  }
+
+  const suffix = getOrdinalSuffix(day);
+  return `${month} ${day}${suffix} ${year}`;
+}
+
+// Example usage:
+// console.log(getHumanReadableDate()); // e.g., "November 11th 2025"
+
+export { sanitizePost, BOARDS, getHumanReadableDate };
