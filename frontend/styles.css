@@ -107,7 +107,7 @@
       right: -70px;
       bottom: -70px;
       border-radius: 50%;
-      background: radial-gradient(circle, var(--aura-color, rgba(138, 43, 226, 0.5)), transparent 70%);
+      background: radial-gradient(circle, var(--aura-color, rgba(138, 43, 226, 0.1)), transparent 80%);
       filter: blur(60px);
       opacity: 0.8;
       z-index: -1;
@@ -122,10 +122,10 @@
       right: -50px;
       bottom: -50px;
       border-radius: 50%;
-      background: conic-gradient(from 0deg, transparent, rgba(255,255,255,0.5), var(--aura-color, rgba(138,43,226,0.5)), transparent);
+      background: conic-gradient(from 0deg, transparent, rgba(255,255,255,0.1), var(--aura-color, rgba(138,43,226,0.1)), transparent);
       animation: rotate 8s linear infinite;
       z-index: -1;
-      filter: blur(15px);
+      filter: blur(30px);
     }
 
     /* Energy particles rising from dot */
