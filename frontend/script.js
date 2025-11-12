@@ -127,7 +127,7 @@ async function fetchReasoning() {
 		const response = await fetch('/reasoning');
 		const text = await response.text();
 		const content = document.getElementById('reasoning-content');
-		content.innerHTML = text.split('\n\n').map(p => `<p style="text-align: center;">${p}</p>`).join('');
+		content.innerHTML = `<div style="text-align: center; font-size: 18px; line-height: 1.6;">${text.replace(/\n/g, '<br>')}</div>`;
 	} catch (error) {
 		document.getElementById('reasoning-content').innerHTML = '<p style="text-align: center;">Error loading reasoning data</p>';
 	}
