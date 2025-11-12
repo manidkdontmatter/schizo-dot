@@ -134,6 +134,8 @@ async function updateDot() {
 		// Handle moon overlay
 		const moonAlpha = (realSentiment < 0 ? -realSentiment : 0) / 4;
 		if(moonAlpha < -0.5) moonAlpha = -0.5
+		if(realSentiment > -0.5) moonAlpha = 0
+
 		let moonImg = dot.querySelector('.moon-overlay');
 		if (moonAlpha > 0) {
 			if (!moonImg) {
