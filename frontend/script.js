@@ -18,7 +18,7 @@ function updateTarget() {
   const now = Date.now();
   if (now - lastTargetUpdate > targetUpdateInterval) {
     // Random offset: ±0.01, clamped to not exceed real ±0.01
-    const offset = (Math.random() - 0.5) * 0.02;  // -0.01 to +0.01
+    const offset = (Math.random() - 0.5) * 0.01;
     targetSentiment = Math.max(realSentiment - 0.01, Math.min(realSentiment + 0.01, realSentiment + offset));
     lerpStartTime = now;
     lastTargetUpdate = now;
