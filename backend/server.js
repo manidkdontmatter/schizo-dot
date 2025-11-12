@@ -130,7 +130,6 @@ async function runScheduledTask() {
         });
       });
     }
-    sentimentResults.averageScore+=0.3
     const { logMessage, ...dataToSave } = sentimentResults;
     if (logMessage) console.log(logMessage);
     fs.writeFileSync(path.join(dataDir, 'sentiment-results.json'), JSON.stringify(sentimentResults, null, 2));
