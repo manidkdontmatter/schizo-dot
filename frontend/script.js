@@ -131,6 +131,30 @@ async function updateDot() {
 		dot.style.width = `${size}px`;
 		dot.style.height = `${size}px`;
 
+		// Handle moon overlay
+		const moonAlpha = (realSentiment < 0 ? -realSentiment : 0) / 4;
+		if(moonAlpha < -0.5) moonAlpha = -0.5
+		let moonImg = dot.querySelector('.moon-overlay');
+		if (moonAlpha > 0) {
+			if (!moonImg) {
+				moonImg = document.createElement('img');
+				moonImg.className = 'moon-overlay';
+				moonImg.src = 'moon.png';
+				moonImg.style.position = 'absolute';
+				moonImg.style.top = '0';
+				moonImg.style.left = '0';
+				moonImg.style.width = '100%';
+				moonImg.style.height = '100%';
+				moonImg.style.borderRadius = '50%';
+				moonImg.style.pointerEvents = 'none';
+				moonImg.style.zIndex = '1'; // Above background, below particles
+				dot.appendChild(moonImg);
+			}
+			moonImg.style.opacity = moonAlpha;
+		} else if (moonImg) {
+			moonImg.remove();
+		}
+
 	} catch (error) {
 		console.error('Error loading sentiment:', error);
 		document.getElementById('sentiment').textContent = 'Error loading data';
