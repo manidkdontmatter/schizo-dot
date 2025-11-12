@@ -1,5 +1,58 @@
 import renderChart from './chart-display.js';
 
+let realSentiment = 0;  // The actual value from backend
+let displaySentiment = 0;  // The lerped value shown to user
+let targetSentiment = 0;  // The fluctuating target
+let lerpStartTime = 0;  // Timestamp for lerp start
+let lerpDuration = 180000;  // 90 seconds (1.5 minutes) for lerp; adjust as needed
+let targetUpdateInterval = 5000;  // 60 seconds between target changes; adjust as needed
+let lastTargetUpdate = 0;
+
+// Helper: Linear interpolation
+function lerp(start, end, t) {
+  return start + (end - start) * t;
+}
+
+// Update the target periodically
+function updateTarget() {
+  const now = Date.now();
+  if (now - lastTargetUpdate > targetUpdateInterval) {
+    // Random offset: ±0.01, clamped to not exceed real ±0.01
+    const offset = (Math.random() - 0.5) * 0.02;  // -0.01 to +0.01
+    targetSentiment = Math.max(realSentiment - 0.01, Math.min(realSentiment + 0.01, realSentiment + offset));
+    lerpStartTime = now;
+    lastTargetUpdate = now;
+  }
+}
+
+// Animation loop for lerping
+function animateSentiment() {
+  updateTarget();
+  const now = Date.now();
+  const elapsed = now - lerpStartTime;
+  const t = Math.min(elapsed / lerpDuration, 1);  // 0 to 1 over duration
+  displaySentiment = lerp(displaySentiment, targetSentiment, t);
+  
+  // Update DOM only if changed significantly
+  const sentimentEl = document.getElementById('sentiment');
+  const currentText = sentimentEl.innerHTML;
+  let label;
+  if (realSentiment < -0.5) label = 'It\'s so over';
+  else if (realSentiment < -0.35) label = 'Doom';
+  else if (realSentiment < -0.2) label = 'Mild Doom';
+  else if (realSentiment <= 0.2) label = 'Nothing Ever Happens';
+  else if (realSentiment <= 0.35) label = 'Mild Hope';
+  else if (realSentiment <= 0.5) label = 'Hope'
+  else label = 'We\'re so back';
+  const newValue = displaySentiment.toFixed(3);
+  const newText = `Sentiment: ${newValue} (${label})<br><a href="#" onclick="showReasoningModal()">View Reasoning</a> | <a href="#" onclick="showChartModal()">View Chart</a>`;
+  if (newText !== currentText) {
+    sentimentEl.innerHTML = newText;
+  }
+  
+  requestAnimationFrame(animateSentiment);
+}
+
 function interpolateColor(score) {
 	// Normalize score: -0.5 becomes -1, 0 becomes 0, 0.5 becomes 1
 	const norm = Math.max(-1, Math.min(1, score * 2));
@@ -32,13 +85,22 @@ async function updateDot() {
 		const response = await fetch('/sentiment');
 		const data = await response.json();
 
-		const avgSentiment = data.average || 0;
+		realSentiment = data.average || 0;
+
+		// On first load, set display and target with initial offset
+		if (displaySentiment === 0 && targetSentiment === 0) {
+			displaySentiment = realSentiment;
+			const offset = (Math.random() - 0.5) * 0.02;  // -0.01 to +0.01
+			targetSentiment = Math.max(realSentiment - 0.01, Math.min(realSentiment + 0.01, realSentiment + offset));
+			lerpStartTime = Date.now();
+			lastTargetUpdate = Date.now();
+			animateSentiment();  // Start the loop
+		}
 
 		const dot = document.getElementById('dot');
-		const sentimentEl = document.getElementById('sentiment');
 
 		// Get base color
-		let [r, g, b] = interpolateColor(avgSentiment);
+		let [r, g, b] = interpolateColor(realSentiment);
 
 		// Calculate lighter and darker for metallic gradient
 		const lighterR = clamp(r * 1.3);
@@ -65,20 +127,9 @@ async function updateDot() {
 
 		// Size based on absolute sentiment, scaled for mobile
 		const isMobile = window.innerWidth < 768;
-		const size = isMobile ? 100 + Math.abs(avgSentiment) * 30 : 150 + Math.abs(avgSentiment) * 50;
+		const size = isMobile ? 100 + Math.abs(realSentiment) * 30 : 150 + Math.abs(realSentiment) * 50;
 		dot.style.width = `${size}px`;
 		dot.style.height = `${size}px`;
-
-		// Update sentiment text
-		let label;
-		if (avgSentiment < -0.5) label = 'It\'s so over';
-		else if (avgSentiment < -0.35) label = 'Doom';
-		else if (avgSentiment < -0.2) label = 'Mild Doom';
-		else if (avgSentiment <= 0.2) label = 'Nothing Ever Happens';
-		else if (avgSentiment <= 0.35) label = 'Mild Hope';
-		else if (avgSentiment <= 0.5) label = 'Hope'
-		else label = 'We\'re so back';
-		sentimentEl.innerHTML = `Sentiment: ${avgSentiment.toFixed(2)} (${label})<br><a href="#" onclick="showReasoningModal()">View Reasoning</a> | <a href="#" onclick="showChartModal()">View Chart</a>`;
 
 	} catch (error) {
 		console.error('Error loading sentiment:', error);
