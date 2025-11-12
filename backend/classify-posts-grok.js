@@ -102,8 +102,31 @@ export async function classifyPostsGrok(posts) {
 
   // Save reasoning to file
   const intro = `Hundreds of 4chan posts are broken into ${numChunks} chunks. Each chunk contains multiple posts. The chunk is then analyzed by the AI and given a score by observing the most future predictive and schizo posts. Then all scores are averaged together into the overall score. Below is the AI's reasoning for each chunk of 4chan posts:\n\n`;
-  const reasoningText = intro + chunkData.map(item => `Chunk ${item.chunk}. Score: ${item.score.toFixed(2)}, ${item.explanation}`).join('\n\n');
-  fs.writeFileSync(path.join(__dirname, '..', 'data', 'reasoning.txt'), reasoningText);
+  const chunksText = chunkData.map(item => `Chunk ${item.chunk}. Score: ${item.score.toFixed(2)}, ${item.explanation}`).join('\n\n');
+
+  let narrative
+  try {
+    narrative = await client.chat.completions.create({
+      model: "grok-4-fast-reasoning",
+      messages: [
+        {
+          role: "system",
+          content: `you are about to receive a bunch of predictions made by a 4chan web scraper, it scrapes them in chunks and then pastes all predictions separated by a dash for the chunk. i want you to read all these predictions then give me a coherent narrative using them that tells what will happen in the near future, a narrative that makes sense. keep the narrative worded matter of factly, like someone who is just stating what will happen, don't embellish it like some novel because that's not what we are doing here, straightforward. this is for people to read easily. no internet lingo either. just serious straightforward saying what will happen in the near future in an easy to read format that makes sense for the near future. it's possible you have to omit certain predictions to make a coherent narrative but you should only omit the ones that matter the least, for example if you have multiple predictions of the world ending then one prediction that a democrat will win the virginia elections, obviously the dumb local election is so unimportant compared to the world ending that you should omit it from the narrative. that's just an example.`
+        },
+        {
+          role: "user",
+          content: `${chunksText}`,
+        },
+      ],
+    });
+  }
+  catch (err) {
+    console.log('creating narrative summary failed')
+  }
+  let narrativeText = narrative ? narrative.choices[0].message.content.trim() : 'No response from server'
+  let fullText = narrativeText + '\n\n\n\nRaw Data:\n\n' + chunksText
+
+  fs.writeFileSync(path.join(__dirname, '..', 'data', 'reasoning.txt'), fullText);
 
   const totalTime = (Date.now() - startTime) / 1000;
   const logMessage = `Grok post classification complete. Average score: ${averageScore.toFixed(3)}. Took ${totalTime.toFixed(2)} seconds`;
