@@ -132,7 +132,7 @@ async function updateDot() {
 		dot.style.height = `${size}px`;
 
 		// Handle moon overlay
-		const moonAlpha = (realSentiment < 0 ? -realSentiment : 0) / 4;
+		const moonAlpha = (realSentiment < 0 ? -realSentiment : 0) / 5;
 		if(moonAlpha < -0.5) moonAlpha = -0.5
 		if(realSentiment > -0.5) moonAlpha = 0
 
