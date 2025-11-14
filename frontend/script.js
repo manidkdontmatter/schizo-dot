@@ -25,6 +25,8 @@ function updateTarget() {
 	}
 }
 
+let maxDoomLabel = (['IT\'S SO OVER', 'EXTREME DOOM', 'WE\'RE ALL GOING TO DIE', 'IT\'S SCHIZO TIME'])[Math.floor(Math.random() * 4)]
+
 // Animation loop for lerping
 function animateSentiment() {
 	updateTarget();
@@ -37,12 +39,12 @@ function animateSentiment() {
 	const sentimentEl = document.getElementById('sentiment');
 	const currentText = sentimentEl.innerHTML;
 	let label;
-	if (realSentiment < -0.5) label = 'It\'s so over';
-	else if (realSentiment < -0.35) label = 'Doom';
-	else if (realSentiment < -0.2) label = 'Mild Doom';
-	else if (realSentiment <= 0.2) label = 'Nothing Ever Happens';
-	else if (realSentiment <= 0.35) label = 'Mild Hope';
-	else if (realSentiment <= 0.5) label = 'Hope'
+	if (displaySentiment < -0.5) label = maxDoomLabel;
+	else if (displaySentiment < -0.35) label = 'Doom';
+	else if (displaySentiment < -0.2) label = 'Mild Doom';
+	else if (displaySentiment <= 0.2) label = 'Nothing Ever Happens';
+	else if (displaySentiment <= 0.35) label = 'Mild Hope';
+	else if (displaySentiment <= 0.5) label = 'Hope'
 	else label = 'We\'re so back';
 	const newValue = displaySentiment.toFixed(3);
 	const newText = `Sentiment: ${newValue} (${label})<br><a href="#" onclick="showReasoningModal()">View Reasoning</a> | <a href="#" onclick="showChartModal()">View Chart</a>`;
