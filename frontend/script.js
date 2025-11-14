@@ -10,70 +10,77 @@ let lastTargetUpdate = 0;
 
 // Helper: Linear interpolation
 function lerp(start, end, t) {
-  return start + (end - start) * t;
+	return start + (end - start) * t;
 }
 
 // Update the target periodically
 function updateTarget() {
-  const now = Date.now();
-  if (now - lastTargetUpdate > targetUpdateInterval) {
-    // Random offset: ±0.01, clamped to not exceed real ±0.01
-    const offset = (Math.random() - 0.5) * 0.01;
-    targetSentiment = Math.max(realSentiment - 0.01, Math.min(realSentiment + 0.01, realSentiment + offset));
-    lerpStartTime = now;
-    lastTargetUpdate = now;
-  }
+	const now = Date.now();
+	if (now - lastTargetUpdate > targetUpdateInterval) {
+		// Random offset: ±0.01, clamped to not exceed real ±0.01
+		const offset = (Math.random() - 0.5) * 0.01;
+		targetSentiment = Math.max(realSentiment - 0.01, Math.min(realSentiment + 0.01, realSentiment + offset));
+		lerpStartTime = now;
+		lastTargetUpdate = now;
+	}
 }
 
 // Animation loop for lerping
 function animateSentiment() {
-  updateTarget();
-  const now = Date.now();
-  const elapsed = now - lerpStartTime;
-  const t = Math.min(elapsed / lerpDuration, 1);  // 0 to 1 over duration
-  displaySentiment = lerp(displaySentiment, targetSentiment, t);
-  
-  // Update DOM only if changed significantly
-  const sentimentEl = document.getElementById('sentiment');
-  const currentText = sentimentEl.innerHTML;
-  let label;
-  if (realSentiment < -0.5) label = 'It\'s so over';
-  else if (realSentiment < -0.35) label = 'Doom';
-  else if (realSentiment < -0.2) label = 'Mild Doom';
-  else if (realSentiment <= 0.2) label = 'Nothing Ever Happens';
-  else if (realSentiment <= 0.35) label = 'Mild Hope';
-  else if (realSentiment <= 0.5) label = 'Hope'
-  else label = 'We\'re so back';
-  const newValue = displaySentiment.toFixed(3);
-  const newText = `Sentiment: ${newValue} (${label})<br><a href="#" onclick="showReasoningModal()">View Reasoning</a> | <a href="#" onclick="showChartModal()">View Chart</a>`;
-  if (newText !== currentText) {
-    sentimentEl.innerHTML = newText;
-  }
-  
-  requestAnimationFrame(animateSentiment);
+	updateTarget();
+	const now = Date.now();
+	const elapsed = now - lerpStartTime;
+	const t = Math.min(elapsed / lerpDuration, 1);  // 0 to 1 over duration
+	displaySentiment = lerp(displaySentiment, targetSentiment, t);
+
+	// Update DOM only if changed significantly
+	const sentimentEl = document.getElementById('sentiment');
+	const currentText = sentimentEl.innerHTML;
+	let label;
+	if (realSentiment < -0.5) label = 'It\'s so over';
+	else if (realSentiment < -0.35) label = 'Doom';
+	else if (realSentiment < -0.2) label = 'Mild Doom';
+	else if (realSentiment <= 0.2) label = 'Nothing Ever Happens';
+	else if (realSentiment <= 0.35) label = 'Mild Hope';
+	else if (realSentiment <= 0.5) label = 'Hope'
+	else label = 'We\'re so back';
+	const newValue = displaySentiment.toFixed(3);
+	const newText = `Sentiment: ${newValue} (${label})<br><a href="#" onclick="showReasoningModal()">View Reasoning</a> | <a href="#" onclick="showChartModal()">View Chart</a>`;
+	if (newText !== currentText) {
+		sentimentEl.innerHTML = newText;
+	}
+
+	requestAnimationFrame(animateSentiment);
 }
 
 function interpolateColor(score) {
 	// Normalize score: -0.5 becomes -1, 0 becomes 0, 0.5 becomes 1
 	const norm = Math.max(-1, Math.min(1, score * 2));
-	// Now interpolate from red (-1) to yellow (0) to green (1)
-	if (norm <= -1) return [255, 0, 0]; // Red
-	if (norm >= 1) return [0, 255, 0]; // Green
+
+	// Define the three colors (RGB arrays) - change these to customize
+	const lowColor = [255, 0, 0];    // Red for lowest sentiment
+	const midColor = [255, 255, 255];  // mid color
+	const highColor = [0, 255, 0];   // Green for highest sentiment
+
+	let color1, color2, t;
 	if (norm <= 0) {
-		// From red to yellow
-		const t = (norm + 1) / 1; // 0 to 1
-		const r = 255;
-		const g = t * 255;
-		const b = 0;
-		return [r, g, b];
+		// Interpolate from low to mid
+		color1 = lowColor;
+		color2 = midColor;
+		t = (norm + 1) / 1; // 0 to 1
 	} else {
-		// From yellow to green
-		const t = norm / 1; // 0 to 1
-		const r = 255 - t * 255;
-		const g = 255;
-		const b = 0;
-		return [r, g, b];
+		// Interpolate from mid to high
+		color1 = midColor;
+		color2 = highColor;
+		t = norm / 1; // 0 to 1
 	}
+
+	// Calculate interpolated RGB values
+	const r = color1[0] + (color2[0] - color1[0]) * t;
+	const g = color1[1] + (color2[1] - color1[1]) * t;
+	const b = color1[2] + (color2[2] - color1[2]) * t;
+
+	return [Math.round(r), Math.round(g), Math.round(b)];
 }
 
 function clamp(value) {
@@ -133,8 +140,8 @@ async function updateDot() {
 
 		// Handle moon overlay
 		const moonAlpha = (realSentiment < 0 ? -realSentiment : 0) / 5;
-		if(moonAlpha < -0.5) moonAlpha = -0.5
-		if(realSentiment > -0.5) moonAlpha = 0
+		if (moonAlpha < -0.5) moonAlpha = -0.5
+		if (realSentiment > -0.5) moonAlpha = 0
 
 		let moonImg = dot.querySelector('.moon-overlay');
 		if (moonAlpha > 0) {
@@ -166,18 +173,18 @@ async function updateDot() {
 updateDot();
 
 function generateStars() {
-  const starsContainer = document.querySelector('.stars');
-  for (let i = 0; i < 30; i++) {
-    const star = document.createElement('div');
-    star.className = 'star';
-    star.style.position = 'absolute';
-    star.style.top = Math.random() * 100 + '%';
-    star.style.left = Math.random() * 100 + '%';
-    star.style.width = (1 + Math.random() * 3) + 'px';
-    star.style.height = star.style.width;
-    star.style.animationDelay = Math.random() * 20 + 's';
-    starsContainer.appendChild(star);
-  }
+	const starsContainer = document.querySelector('.stars');
+	for (let i = 0; i < 30; i++) {
+		const star = document.createElement('div');
+		star.className = 'star';
+		star.style.position = 'absolute';
+		star.style.top = Math.random() * 100 + '%';
+		star.style.left = Math.random() * 100 + '%';
+		star.style.width = (1 + Math.random() * 3) + 'px';
+		star.style.height = star.style.width;
+		star.style.animationDelay = Math.random() * 20 + 's';
+		starsContainer.appendChild(star);
+	}
 }
 
 generateStars();
