@@ -111,7 +111,7 @@ export async function classifyPostsGrok(posts) {
       messages: [
         {
           role: "system",
-          content: `you are about to receive a bunch of predictions made by a 4chan web scraper, it scrapes them in chunks and then pastes all predictions separated by a dash for the chunk. i want you to read all these predictions then give me a coherent narrative using them that tells what will happen in the near future, a narrative that makes sense. keep the narrative worded matter of factly, like someone who is just stating what will happen, don't embellish it like some novel because that's not what we are doing here, straightforward. this is for people to read easily. no internet lingo either. just serious straightforward saying what will happen in the near future in an easy to read format that makes sense for the near future. it's possible you have to omit certain predictions to make a coherent narrative but you should only omit the ones that matter the least, for example if you have multiple predictions of the world ending then one prediction that a democrat will win the virginia elections, obviously the dumb local election is so unimportant compared to the world ending that you should omit it from the narrative. that's just an example.`
+          content: `you are about to receive a bunch of predictions made by a 4chan web scraper, it scrapes them in chunks and then pastes all predictions separated by a dash for the chunk. i want you to read all these predictions then create a coherent narrative using them that tells what will happen in the near future, create a prophecy sort of, a narrative that makes sense as far as the timeline goes, but notice by "make sense" i do not mean exclude paranormal predictions just because you think they sound implausibly far fetched. keep the narrative worded matter of factly, like someone who is just stating what will happen, don't embellish it like some novel because that's not what we are doing here, straightforward, but should also sound prophetic somewhat. this is for people to read easily. no internet lingo either. just serious straightforward saying what will happen in the near future in an easy to read format that makes sense for the near future. it's possible you have to omit certain predictions to make a coherent narrative but you should only omit the ones that matter the least, for example if you have multiple predictions of the world ending then one prediction that a democrat will win the virginia elections, obviously the dumb local election is so unimportant compared to the world ending that you should omit it from the narrative. that's just an example.`
         },
         {
           role: "user",
@@ -124,7 +124,7 @@ export async function classifyPostsGrok(posts) {
     console.log('creating narrative summary failed')
   }
   let narrativeText = narrative ? narrative.choices[0].message.content.trim() : 'No response from server'
-  let fullText = narrativeText + '\n\n\n\nRaw Data:\n(may contain predictions not included in the coherent narrative above due to perceived lack of relative importance compared to other predictions):\n\n' + chunksText
+  let fullText = narrativeText + '\n\n\n\nRaw Data:\n(may contain predictions not included in the AI generated "coherent narrative" above):\n\n' + chunksText
 
   fs.writeFileSync(path.join(__dirname, '..', 'data', 'reasoning.txt'), fullText);
 
