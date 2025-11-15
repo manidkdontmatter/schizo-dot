@@ -25,7 +25,7 @@ function updateTarget() {
 	}
 }
 
-let maxDoomLabel = (['IT\'S SO OVER', 'EXTREME DOOM', 'WE\'RE ALL GOING TO DIE', 'IT\'S SCHIZO TIME'])[Math.floor(Math.random() * 4)]
+let maxDoomLabel = (['IT\'S SO OVER', 'EXTREME DOOM', 'WE\'RE ALL GOING TO DIE', 'IT\'S SCHIZO TIME','BLOOD MOON OF ETERNAL DOOM'])[Math.floor(Math.random() * 5)]
 
 // Animation loop for lerping
 function animateSentiment() {
