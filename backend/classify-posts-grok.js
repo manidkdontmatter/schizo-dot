@@ -124,7 +124,7 @@ export async function classifyPostsGrok(posts) {
     console.log('creating narrative summary failed')
   }
   let narrativeText = narrative ? narrative.choices[0].message.content.trim() : 'No response from server'
-  let fullText = 'AI Generated "Coherent Narrative":\n(Can be retarded, see raw data below for individual predictions this narrative was created from)\n\n' + narrativeText + '\n\n\n\nRaw Data:\n(May contain predictions not included in the "coherent narrative" above):\n\n' + chunksText
+  let fullText = 'AI Generated "Coherent Narrative":\n(Can be retarded, see raw predictions below for individual predictions this narrative was created from)\n\n' + narrativeText + '\n\n\n\nRaw Predictions:\n(May contain predictions not included in the "coherent narrative"):\n\n' + chunksText
 
   fs.writeFileSync(path.join(__dirname, '..', 'data', 'reasoning.txt'), fullText);
 
