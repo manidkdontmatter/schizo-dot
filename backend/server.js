@@ -138,7 +138,7 @@ async function runScheduledTask() {
     console.error('Error in scheduled task:', error);
   }
 
-  setTimeout(runScheduledTask, 1 * 60 * 60 * 1000);
+  setTimeout(runScheduledTask, 3 * 60 * 60 * 1000);
 }
 
 const PORT = process.env.PORT || 3000;
