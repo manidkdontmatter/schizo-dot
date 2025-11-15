@@ -101,8 +101,8 @@ export async function classifyPostsGrok(posts) {
   fs.writeFileSync(historyPath, JSON.stringify(history, null, 2));
 
   // Save reasoning to file
-  const intro = `Hundreds of 4chan posts are broken into ${numChunks} chunks. Each chunk contains multiple posts. The chunk is then analyzed by the AI and given a score by observing the most future predictive and schizo posts. Then all scores are averaged together into the overall score. Below is the AI's reasoning for each chunk of 4chan posts:\n\n`;
-  const chunksText = chunkData.map(item => `Chunk ${item.chunk} - Score: ${item.score.toFixed(2)}\n${item.explanation}`).join('\n\n');
+  const intro = `Hundreds of 4chan posts are broken into ${numChunks} fragments. Each fragment contains multiple posts. The fragment is then analyzed by the AI and given a score by observing the most future predictive and schizo posts. Then all scores are averaged together into the overall score. Below is the AI's reasoning for each fragment of 4chan posts:\n\n`;
+  const chunksText = chunkData.map(item => `Fragment ${item.chunk} - Score: ${item.score.toFixed(2)}\n${item.explanation}`).join('\n\n');
 
   let narrative
   try {
