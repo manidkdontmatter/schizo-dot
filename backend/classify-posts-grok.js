@@ -17,6 +17,7 @@ const client = new OpenAI({
 export async function classifyPostsGrok(posts) {
   console.log(`Grok post classification in progress on ${posts.length} posts...`);
   const startTime = Date.now();
+  const model = 'grok-4-fast-non-reasoning'
 
   if (!Array.isArray(posts) || posts.length === 0) {
     return { totalPosts: 0, results: [], averageScore: 0 };
@@ -37,7 +38,7 @@ export async function classifyPostsGrok(posts) {
 
     try {
       const completion = await client.chat.completions.create({
-        model: "grok-4-fast-reasoning",
+        model: model,
         messages: [
           {
             role: "system",
@@ -103,7 +104,7 @@ export async function classifyPostsGrok(posts) {
   let narrative
   try {
     narrative = await client.chat.completions.create({
-      model: "grok-4-fast-reasoning",
+      model: model,
       messages: [
         {
           role: "system",
