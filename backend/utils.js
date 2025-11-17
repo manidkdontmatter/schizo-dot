@@ -1,4 +1,4 @@
-const BOARDS = ['x', 'pol'];
+const BOARDS = ['x','pol'];
 
 function sanitizePost(postString) {
 	// Step 1: Strip HTML tags, but handle <br> specially for line breaks

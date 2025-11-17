@@ -88,9 +88,14 @@ async function runScheduledTask() {
     const boards = BOARDS;
     let posts = [];
     if (config.classificationMode === 'catalog') {
-      const polData = JSON.parse(fs.readFileSync(path.join(dataDir, 'pol-catalog-processed.json'), 'utf8'));
-      const xData = JSON.parse(fs.readFileSync(path.join(dataDir, 'x-catalog-processed.json'), 'utf8'));
-      posts = [...xData, ...polData].map(item => item.text);
+      posts = [];
+      for (const board of boards) {
+        const filePath = path.join(dataDir, `${board}-catalog-processed.json`);
+        if (fs.existsSync(filePath)) {
+          const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+          posts.push(...data.map(item => item.text));
+        }
+      }
     } else {
       for (const board of boards) {
         const repliesDir = path.join(dataDir, `${board}-replies-processed`);
