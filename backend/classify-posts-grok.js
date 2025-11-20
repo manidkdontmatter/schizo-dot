@@ -17,7 +17,7 @@ const client = new OpenAI({
 export async function classifyPostsGrok(posts) {
   console.log(`Grok post classification in progress on ${posts.length} posts...`);
   const startTime = Date.now();
-  const model = 'grok-4-fast-non-reasoning'
+  const model = 'grok-4-1-fast-non-reasoning'
 
   if (!Array.isArray(posts) || posts.length === 0) {
     return { totalPosts: 0, results: [], averageScore: 0 };
