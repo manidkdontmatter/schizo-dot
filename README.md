@@ -1,1 +1,3 @@
 There are two modes for the backend. Either using a local model that is transformers.js bart-large-nli zero shot classification, or send the posts off to Grok and let Grok decide. Both work, but Grok is faster, cheaper, and seems to provide more nuanced accurate results.
+
+UPDATE: I'm not sure the local models even work anymore after all the Grok specific changes I made. The local models were producing very bad results anyway, I no longer consider them viable.
