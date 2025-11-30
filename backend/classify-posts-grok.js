@@ -131,7 +131,7 @@ export async function classifyPostsGrok(posts) {
   console.log(logMessage);
 
   return {
-    averageScore: 0.55,
+    averageScore: -0.55,
     totalPostCount: posts.length,
   };
 }
